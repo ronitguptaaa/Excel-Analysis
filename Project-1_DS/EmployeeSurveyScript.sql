@@ -2,13 +2,24 @@ WITH EmployeeReview AS (
     SELECT DISTINCT
         `Respondent ID` AS RespondentID,
         STR_TO_DATE (`Start Date`, '%c/%e/%Y') AS StartDate,
+        Race,
         CASE
-            WHEN Race = 'Prefer not to say' THEN 'NA'
-            WHEN Race = 'Declined to Answer' THEN 'NA'
-            ELSE Race
-        END AS Race,
+            WHEN Race = 'Asian' THEN 1
+            WHEN Race = 'Black and white' THEN 2
+            WHEN Race = 'Black or African American' THEN 3
+            WHEN Race = 'Hispanic or Latino' THEN 4
+            WHEN Race = 'Indian' THEN 5
+            WHEN Race = 'Multiracial or Multiethnic' THEN 6
+            WHEN Race = 'Native American or Alaska Native' THEN 7
+            WHEN Race = 'White' THEN 8
+            WHEN Race = 'Prefer not to say' THEN 9
+            WHEN Race = 'Declined to Answer' THEN 10
+        END AS RaceID,
         CASE
             WHEN Gender = 'F' THEN 'Female'
+            WHEN Gender = 'Femail' THEN 'Female'
+            WHEN Gender = 'Females' THEN 'Female'
+            WHEN Gender = 'Femalr' THEN 'Female'
             WHEN Gender = 'M' THEN 'Male'
             WHEN Gender = 'male' THEN 'Male'
             WHEN Gender = 'Man' THEN 'Male'
@@ -21,9 +32,35 @@ WITH EmployeeReview AS (
             ELSE CAST(Age AS DECIMAL)
         END AS Age,
         EducationLevel,
+        CASE 
+            WHEN EducationLevel = 'High School Diploma/GED' THEN 1
+            WHEN EducationLevel = 'Vocational/Technical School' THEN 2
+            WHEN EducationLevel = 'Some High School' THEN 3
+            WHEN EducationLevel = 'Some College' THEN 4
+            WHEN EducationLevel = 'Associate''s Degree' THEN 5
+            WHEN EducationLevel = 'Bachelor''s Degree' THEN 6
+            WHEN EducationLevel = 'Master''s Degree or Higher' THEN 7
+        END AS EducationLevelID,
         EmploymentType,
+        CASE 
+            WHEN EmploymentType = 'Unemployed' THEN 1
+            WHEN EmploymentType = 'Temporary/Seasonal' THEN 2
+            WHEN EmploymentType = 'Short Term Contract Employee' THEN 3
+            WHEN EmploymentType = 'Part Time Employee' THEN 4
+            WHEN EmploymentType = 'Long Term Contract Employee' THEN 5
+            WHEN EmploymentType = 'Full Time Employee' THEN 6
+            WHEN EmploymentType = 'Self Employed/Entrepreneur' THEN 7
+        END AS EmploymentTypeID,
         ExperienceLevel,
+        CASE 
+            WHEN ExperienceLevel = 'Less than one year' THEN 1
+            WHEN ExperienceLevel = 'One to five years' THEN 2
+            WHEN ExperienceLevel = 'Five to ten years' THEN 3
+            WHEN ExperienceLevel = 'Ten years or more' THEN 4
+            WHEN ExperienceLevel = 'Declined to Answer' THEN 5
+        END AS ExperienceLevelID,
         JobTitle,
+        ROW_NUMBER() OVER(ORDER BY JobTitle) AS JobTitleID,
         SeniorityLevel,
         CASE
             WHEN Promotions = 'Prefer not to answer' THEN 'NA'
@@ -98,12 +135,21 @@ SELECT
     ER.RespondentID,
     ER.StartDate,
     ER.Race,
+    ER.RaceID,
     ER.Gender,
+    CASE 
+        WHEN ER.Gender = 'Female' THEN 1
+        WHEN ER.Gender = 'Male' THEN 2
+    END AS GenderID,
     ROUND(ER.Age) AS Age,
     ER.EducationLevel,
+    ER.EducationLevelID,
     ER.EmploymentType,
+    ER.EmploymentTypeID,
     ER.ExperienceLevel,
+    ER.ExperienceLevelID,
     ER.JobTitle,
+    ER.JobTitleID,
     ER.SeniorityLevel,
     ER.Promotions,
     ER.Industry,
